@@ -86,9 +86,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .phase-table th,.phase-table td{padding:7px 8px;text-align:left;border-bottom:1px solid var(--border)}
 .phase-table th{font-size:11px;color:var(--muted);font-weight:600}
 .phase-table .ph-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
-#notify-banner{display:none;background:#fff3e0;border:1px solid #ffe0b2;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;align-items:center;gap:8px;flex-wrap:wrap}
-#notify-banner.show{display:flex}
-#notify-banner button{background:var(--ovulation);color:#fff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap}
 .window-legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-bottom:10px;flex-wrap:wrap}
 .window-legend span{display:flex;align-items:center;gap:4px}
 .window-legend .wdot{width:6px;height:6px;border-radius:50%;display:inline-block}
@@ -97,8 +94,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 </style>
 </head>
 <body>
-<div class="topbar"><h1>🌙 Fast Like a Girl</h1><div class="actions"><button onclick="requestNotify()">🔔 通知</button><button onclick="openModal('book-modal')">📖 介绍</button><button onclick="openModal('settings-modal')">⚙️ 设置</button></div></div>
-<div id="notify-banner"></div>
+<div class="topbar"><h1>🌙 Fast Like a Girl</h1><div class="actions"><button onclick="openModal('book-modal')">📖 介绍</button><button onclick="openModal('settings-modal')">⚙️ 设置</button></div></div>
 <div class="grid">
 <div class="card full" id="status-card"><div class="phase-pill" id="phase-icon"><span class="emoji"></span></div><div class="info"><div class="sub" id="status-date"></div><h2 id="status-phase"></h2><div class="sub" id="status-day"></div></div><div class="fasting-badge" id="fasting-badge"></div></div>
 <div class="card"><div class="card-title">🔄 周期轮盘</div><div id="wheel-container"><svg id="wheel-svg" width="160" height="160" viewBox="0 0 160 160"></svg><div id="wheel-legend"></div></div></div>
@@ -166,7 +162,6 @@ function renderAll(){
   renderCalendar();
   renderNext7();
   renderLog();
-  checkNotify();
 }
 
 function renderStatus(){
@@ -341,36 +336,6 @@ function renderLog(){
     html += '</div>';
   }
   document.getElementById('log-entries').innerHTML = html;
-}
-
-// ====== 通知 ======
-function checkNotify(){
-  var nW1 = (0 - cycleDay + CYCLE_LENGTH) % CYCLE_LENGTH;
-  var nW2 = (16 - cycleDay + CYCLE_LENGTH) % CYCLE_LENGTH;
-  var banner = document.getElementById('notify-banner');
-  var up = [];
-  if(nW1 === 1) up.push('🔴 明天开始月经期断食窗口（Day 0-2）！');
-  else if(cycleDay <= 2) up.push('🔴 月经期断食窗口进行中！');
-  if(nW2 === 1) up.push('🟣 明天进入滋养期断食窗口（Day 16-19）！');
-  else if(nW2 === 0 && cycleDay >= 16 && cycleDay <= 19) up.push('🟣 滋养期断食窗口进行中！');
-  if(up.length > 0){
-    banner.innerHTML = up.join(' ') + ' <button onclick="requestNotify()">开启通知</button>';
-    banner.className = 'show';
-    if('Notification' in window && Notification.permission === 'granted'){
-      new Notification('Fast Like a Girl', { body: up[0] });
-    }
-  } else {
-    banner.className = '';
-  }
-}
-
-function requestNotify(){
-  if(!('Notification' in window)){ alert('浏览器不支持通知'); return; }
-  if(Notification.permission === 'granted'){ alert('通知已开启'); return; }
-  Notification.requestPermission().then(function(p){
-    if(p === 'granted'){ alert('✅ 已开启'); checkNotify(); }
-    else alert('❌ 被拒绝');
-  });
 }
 
 // ====== 弹窗 ======
